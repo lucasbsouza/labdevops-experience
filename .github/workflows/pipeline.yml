@@ -23,10 +23,12 @@ jobs:
         run:  pip install flask pytest flask-wtf
 
       - name: Unit Test
-        run: pytest -v  --cov --cov-report=xml
+        run: | 
+            pytest -v  --cov --cov-report=xml
 
   SonarCloud:
     name: SonarCloud
+    needs: [Build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
