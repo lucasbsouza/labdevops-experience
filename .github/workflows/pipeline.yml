@@ -32,7 +32,7 @@ jobs:
         with:
           name: coverage
           path: ./coverage-reports
-
+		  
   SonarCloud:
     name: SonarCloud
     runs-on: ubuntu-latest
@@ -53,8 +53,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          
-      - name: Login to Heroku Container registry
+		  
+  Heroku:
+  name: Heroku build
+  runs-on: ubuntu-latest
+  needs: [Build,SonarCloud]
+  steps:
+	 - name: Login to Heroku Container registry
         env: 
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku container:login
@@ -64,8 +69,9 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
 
+    
   Deploy:
-    needs: [Build,SonarCloud]
+    needs: [Build,SonarCloud, Heroku]
     runs-on: ubuntu-latest
 
     steps:
