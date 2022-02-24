@@ -1,83 +1,78 @@
---- 
-jobs: 
-  Build: 
+# Nome do Workflow
+name: DevOpsLab Pipeline
+
+# Evento que irá acionar a pipeline
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  Build:
     runs-on: ubuntu-latest
-    steps: 
-      - 
-        name: "Checkout Repo"
+    steps:
+      - name: Checkout Repo
         uses: actions/checkout@v2
-      - 
-        name: "Setup Python"
+
+      - name: Setup Python
         uses: actions/setup-python@v2
-        with: 
-          python-version: "3.7.11"
-      - 
-        name: "Install Requirements"
-        run: "pip install -r ./requirements.txt"
-      - 
-        name: "Unit Test"
+        with:
+          python-version: '3.7.11'
+
+      - name: Install Requirements
+        run:  pip install -r ./requirements.txt
+
+      - name: Unit Test
         run: |
             coverage run -m unittest discover -v 
             coverage xml -o ./coverage-reports/coverage.xml
-      - 
-        name: "Upload do Coverage Report"
+
+      - name: Upload do Coverage Report
         uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: coverage
           path: ./coverage-reports
-  Deploy: 
-    needs: 
-      - Build
-      - SonarCloud
-      - Heroku
-    runs-on: ubuntu-latest
-    steps: 
-      - 
-        env: 
-          HEROKU_API_KEY: "${{ secrets.HEROKU_API_KEY }}"
-        name: "Deploy Heroku"
-        run: "heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web"
-  Heroku: ~
-  SonarCloud: 
+		  
+  SonarCloud:
     name: SonarCloud
-    needs: 
-      - Build
     runs-on: ubuntu-latest
-    steps: 
-      - 
-        uses: actions/checkout@v2
-        with: 
-          fetch-depth: 0
-      - 
-        name: "Download do Coverage Report"
+    needs: [Build]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Download do Coverage Report
         uses: actions/download-artifact@v1
-        with: 
+        with:
           name: coverage
           path: ./coverage-reports
-      - 
-        env: 
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          SONAR_TOKEN: "${{ secrets.SONAR_TOKEN }}"
-        name: "SonarCloud Scan"
+          
+      - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
-  name: "Heroku build"
-  needs: 
-    - Build
-    - SonarCloud
-  runs-on: ubuntu-latest
-  steps: 
-    - 
-      env: 
-        HEROKU_API_KEY: "${{ secrets.HEROKU_API_KEY }}"
-      name: "Login to Heroku Container registry"
-      run: "heroku container:login"
-    - 
-      env: 
-        HEROKU_API_KEY: "${{ secrets.HEROKU_API_KEY }}"
-      name: "Build and Push"
-      run: "heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web"
-name: "DevOpsLab Pipeline"
-true: 
-  push: 
-    branches: 
-      - main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+		  
+  Heroku:
+	name: Heroku build
+	runs-on: ubuntu-latest
+	needs: [Build,SonarCloud]
+	steps:
+	  - name: Login to Heroku Container registry
+		env: HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+		run: heroku container:login
+
+	  - name: Build and Push
+		env: HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+		run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
+    
+  Deploy:
+    needs: [Build,SonarCloud, Heroku]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web
