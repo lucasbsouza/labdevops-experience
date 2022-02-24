@@ -7,8 +7,9 @@ csrf = CSRFProtect(app)
 
 @app.route("/")
 def pagina_inicial():
-    return "Laboratório Pipeline DevOps - Lucas Barros"
+    return "Laboratório Pipeline DevOps docker - Lucas Barros"
  
 
 if __name__ == '__main__':
-    app.run()
+    port = os.getenv('PORT')
+    app.run('0.0.0.0', port=port)
