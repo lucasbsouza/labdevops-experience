@@ -34,11 +34,13 @@ jobs:
           path: ./coverage-reports
           
       - name: Login to Heroku Container registry
-        env: HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        env: 
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku container:login
         
       - name: Build and Push
-        env: HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        env: 
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
 
   SonarCloud:
