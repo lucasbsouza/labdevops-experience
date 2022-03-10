@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  Build:
+  UnitTest:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.7.11'
+          python-version: '3.9'
 
       - name: Install Requirements
         run:  pip install -r ./requirements.txt
@@ -32,21 +32,11 @@ jobs:
         with:
           name: coverage
           path: ./coverage-reports
-          
-      - name: Login to Heroku Container registry
-        env: 
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku container:login
-        
-      - name: Build and Push
-        env: 
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
 
   SonarCloud:
     name: SonarCloud
     runs-on: ubuntu-latest
-    needs: [Build]
+    needs: [UnitTest]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -64,8 +54,27 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Login to Heroku Container registry
+        env: 
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:login
+        
+      - name: Build and Push
+        env: 
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
+
   Deploy:
-    needs: [Build,SonarCloud]
+    needs: [Build]
     runs-on: ubuntu-latest
 
     steps:
