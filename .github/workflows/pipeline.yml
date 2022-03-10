@@ -55,6 +55,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   Build:
+    needs: [SonarCloud]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
