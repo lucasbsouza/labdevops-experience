@@ -107,6 +107,9 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Deploy to App Engine
         id: appengine
         env: 
