@@ -10,8 +10,8 @@ on:
       - main
 
 jobs:
-  if: github.event.pull_request.merged == true
   Build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
