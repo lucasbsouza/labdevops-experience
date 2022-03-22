@@ -6,4 +6,10 @@
 
 
 # DevOps Hands On
-Aplicação em Python/Flask com teste usando Unittest
+Aplicação em Python/Flask 
+Unittest
+New Relic
+SonarCloud
+
+Ambiente de desenvolvimento utilizando Heroku
+Ambiente de Produção utilizando Google Cloud
