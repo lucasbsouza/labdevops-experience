@@ -6,6 +6,12 @@
 
 
 # DevOps Hands On
-Aplicação Simples em Python/Flask com teste usando Unittest e vagrant 
+Aplicação em Python/Flask </br>
+Unittest </br>
+New Relic </br>
+SonarCloud </br>
+</br>
+Ambiente de desenvolvimento utilizando Heroku </br>
+Ambiente de Produção utilizando Google Cloud
 
-teste
+Teste de commit na main
