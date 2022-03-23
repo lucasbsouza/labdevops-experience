@@ -1,5 +1,9 @@
 # Nome do Workflow
+<<<<<<< HEAD
 name: DevOpsLab Pipeline DEvelop
+=======
+name: DevOpsLab Pipeline Develop
+>>>>>>> d04004a2696965fb874998d0483a08af21e70403
 
 # Evento que irá acionar a pipeline
 on: 
